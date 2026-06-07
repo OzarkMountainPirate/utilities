@@ -1,0 +1,12 @@
+[Unit]
+Description=Hourly syncoid replication to backup host
+
+[Timer]
+# Fire 5 minutes past each hour — after sanoid (:00) has taken the snapshots
+# this run will replicate.
+OnCalendar=*-*-* *:05:00
+Persistent=true
+RandomizedDelaySec=2m
+
+[Install]
+WantedBy=timers.target

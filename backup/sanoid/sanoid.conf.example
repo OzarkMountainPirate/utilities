@@ -1,0 +1,43 @@
+# =============================================================================
+# /etc/sanoid/sanoid.conf — local ZFS snapshot policy (Tier 1).
+#
+# Sanoid takes and prunes scheduled snapshots on the local pool. See:
+#   https://github.com/jimsalterjrs/sanoid
+#
+# Install:
+#   sudo install -m 644 sanoid.conf.example /etc/sanoid/sanoid.conf
+#   sudo "${EDITOR:-vi}" /etc/sanoid/sanoid.conf
+# Sanoid ships its own systemd timer (sanoid.timer) that runs every 15 min.
+#   sudo systemctl enable --now sanoid.timer
+# =============================================================================
+
+# Snapshot the whole tree recursively under the production policy.
+[tank/data]
+        use_template = production
+        recursive = yes
+
+# Exclude specific high-churn / reproducible children from snapshotting by
+# assigning them the "ignore" template. Existing snapshots are left alone;
+# no new ones are taken and none are auto-pruned.
+[tank/data/elasticsearch/data]
+        use_template = ignore
+[tank/data/some-cache]
+        use_template = ignore
+
+
+#############################################################################
+# Templates
+#############################################################################
+
+[template_production]
+        frequently = 0
+        hourly  = 36
+        daily   = 30
+        monthly = 12
+        yearly  = 0
+        autosnap  = yes
+        autoprune = yes
+
+[template_ignore]
+        autosnap  = no
+        autoprune = no

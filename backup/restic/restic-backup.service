@@ -1,0 +1,13 @@
+[Unit]
+Description=Restic backup of ZFS datasets to offsite repository
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/restic-backup.sh
+TimeoutStartSec=2h
+# Be a good citizen: low CPU priority and idle I/O so backups don't
+# contend with foreground services.
+Nice=10
+IOSchedulingClass=idle

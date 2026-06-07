@@ -1,0 +1,26 @@
+[Unit]
+Description=Syncoid replication of ZFS datasets to backup host
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+# Replicate RAW (--sendoptions=w): if the source datasets are encrypted, the
+# destination stores ciphertext and never needs the encryption key. This keeps
+# the backup host "blind" — a compromise of the NAS does not expose your data.
+# Remove --sendoptions=w if your source datasets are NOT encrypted.
+#
+# --exclude takes a regex matched against dataset paths. Exclude the same
+# high-churn datasets you skip in sanoid/restic.
+#
+# Replace the placeholders:
+#   SRC_DATASET    e.g. tank/data
+#   BACKUP_USER    SSH user on the destination (needs zfs receive perms)
+#   BACKUP_HOST    hostname/IP of the destination
+#   DEST_DATASET   e.g. backup/backups/myhost/data
+ExecStart=/usr/sbin/syncoid --recursive --sendoptions=w \
+    --exclude='data/(elasticsearch/data|some-cache)' \
+    tank/data \
+    BACKUP_USER@BACKUP_HOST:backup/backups/myhost/data
+# syncoid uses mbuffer/ssh under the hood; a stable HOME avoids spurious warnings.
+Environment=HOME=/root

@@ -1,0 +1,14 @@
+[Unit]
+Description=Hourly restic backup
+
+[Timer]
+# Fire 15 minutes past each hour. If you also run sanoid (:00) and syncoid
+# (:05) on this host, this ordering lets those finish first.
+OnCalendar=*-*-* *:15:00
+# Catch up on a missed run (e.g. machine was off) on next boot.
+Persistent=true
+# Spread load / avoid thundering herd if you template this across hosts.
+RandomizedDelaySec=5m
+
+[Install]
+WantedBy=timers.target

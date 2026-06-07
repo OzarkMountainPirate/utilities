@@ -1,0 +1,12 @@
+[Unit]
+Description=Restic maintenance (forget + prune)
+After=network-online.target restic-backup.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/restic-maintenance.sh
+# Prune can take a while on a large repo; give it room.
+TimeoutStartSec=4h
+Nice=10
+IOSchedulingClass=idle
