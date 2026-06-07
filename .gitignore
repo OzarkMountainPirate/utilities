@@ -1,0 +1,6 @@
+# Secrets / session data
+cookies.txt
+
+# Python
+__pycache__/
+*.pyc
