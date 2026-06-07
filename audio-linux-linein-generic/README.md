@@ -63,13 +63,13 @@ Create the drop-in config directory and file:
 
 ```bash
 mkdir -p ~/.config/pipewire/pipewire.conf.d
-cp pipewire/10-switch-loopback.conf ~/.config/pipewire/pipewire.conf.d/
+cp pipewire/10-device-loopback.conf ~/.config/pipewire/pipewire.conf.d/
 ```
 
 Edit the file and replace the placeholder values with your actual device names from Step 1:
 
 ```bash
-nano ~/.config/pipewire/pipewire.conf.d/10-switch-loopback.conf
+nano ~/.config/pipewire/pipewire.conf.d/10-device-loopback.conf
 ```
 
 Replace:
@@ -84,13 +84,13 @@ Without this step, the device may revert to a digital (IEC958) input profile on 
 
 ```bash
 mkdir -p ~/.config/wireplumber/wireplumber.conf.d
-cp wireplumber/50-x3-profile.conf ~/.config/wireplumber/wireplumber.conf.d/
+cp wireplumber/50-device-profile.conf ~/.config/wireplumber/wireplumber.conf.d/
 ```
 
 Edit the file and replace the placeholder:
 
 ```bash
-nano ~/.config/wireplumber/wireplumber.conf.d/50-x3-profile.conf
+nano ~/.config/wireplumber/wireplumber.conf.d/50-device-profile.conf
 ```
 
 Replace:
