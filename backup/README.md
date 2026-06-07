@@ -5,7 +5,7 @@ small composable pieces rather than a monolithic tool. Every component is a
 plain shell script or systemd unit you can read in a minute and modify without
 fighting an abstraction layer.
 
-The design centers on two patterns most homegrown setups get wrong:
+General design overview:
 
 1. **Backup and prune are separate jobs on separate schedules.** Pruning is the
    single most expensive operation against a remote repository. Coupling it to
