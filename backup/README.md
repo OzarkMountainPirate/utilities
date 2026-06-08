@@ -21,7 +21,7 @@ General design overview:
 
 ```
                       ┌──────────────────────────────────────────────┐
-                      │  SOURCE HOST (ZFS pool: tank/data)            │
+                      │  SOURCE HOST (ZFS pool: tank/data)           │
                       │                                              │
    live data  ───►    │  [1] Sanoid                                  │
    (copy #1)          │      hourly local ZFS snapshots              │
