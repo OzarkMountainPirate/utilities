@@ -7,7 +7,7 @@ Two small Python wrappers around [yt-dlp](https://github.com/yt-dlp/yt-dlp) that
 
 Both accept a URL on the command line or prompt for one interactively, and both will automatically use a `cookies.txt` file if you place one next to the script (needed for age-restricted, members-only, or login-gated content, and helpful when YouTube throws bot checks).
 
-Tested with yt-dlp on Python 3.9+ on both Linux and Windows. `ytVideo.py` needs one extra tweak on Windows — see the platform notes below.
+Tested with yt-dlp on Python 3.9+ on both Linux and Windows. Both scripts run as-is on either platform — `ytVideo.py` locates your Node.js install automatically.
 
 ---
 
@@ -25,12 +25,12 @@ yt-dlp -x --audio-format=mp3 --audio-quality=0 --output="%(title)s.%(ext)s" <URL
 
 ### `ytVideo.py`
 
-Downloads the best video and best audio streams, merges them into an MKV container, and retries up to 5 times on network hiccups. As written it pins a couple of Linux-specific options (a Node.js path and the Android player client) to work around YouTube extraction changes — Windows users need to adjust one line (see [Windows notes](#windows)).
+Downloads the best video and best audio streams, merges them into an MKV container, and retries up to 5 times on network hiccups. It automatically detects your Node.js runtime (used by yt-dlp to help with YouTube extraction) wherever it's installed, so it works on Linux, macOS, and Windows without edits.
 
-Equivalent yt-dlp command (Linux, as shipped):
+Equivalent yt-dlp command (the `node:` path is filled in automatically based on where Node is found):
 
 ```
-yt-dlp --js-runtimes node:/usr/bin/node --extractor-args youtube:player_client=android \
+yt-dlp --js-runtimes node:<auto-detected> --extractor-args youtube:player_client=android \
        -f bestvideo+bestaudio/best --merge-output-format mkv \
        --output="%(title)s.%(ext)s" --retries 5 <URL>
 ```
@@ -77,21 +77,7 @@ ffmpeg -version | head -1
 node --version
 ```
 
-### 2. Confirm the Node path (for `ytVideo.py`)
-
-`ytVideo.py` expects Node at `/usr/bin/node`. Confirm that's where yours is:
-
-```bash
-which node
-```
-
-If it prints something other than `/usr/bin/node` (for example `/usr/local/bin/node` or an nvm path under your home directory), edit line 9 of `ytVideo.py` to match:
-
-```python
-"--js-runtimes", "node:/your/actual/path/to/node",
-```
-
-### 3. Run
+### 2. Run
 
 ```bash
 cd yt-dlp
@@ -162,31 +148,9 @@ ffmpeg -version
 node --version
 ```
 
-### 2. Fix the Node path in `ytVideo.py` (required)
+The `node --version` check matters for `ytVideo.py` — it locates Node automatically as long as Node is on your PATH (the official installer and the winget package both add it). If `node --version` works in a fresh terminal, the script will find it.
 
-This is the one edit Windows users must make. `ytVideo.py` ships with a Linux Node path (`/usr/bin/node`) that doesn't exist on Windows. Find where Node landed:
-
-```powershell
-where.exe node
-```
-
-That typically prints something like `C:\Program Files\nodejs\node.exe`. Open `ytVideo.py` in any text editor and change line 9 from:
-
-```python
-"--js-runtimes", "node:/usr/bin/node",
-```
-
-to your actual path, using forward slashes or escaped backslashes:
-
-```python
-"--js-runtimes", "node:C:/Program Files/nodejs/node.exe",
-```
-
-`ytAudioExtract.py` needs no such change — it works on Windows as-is.
-
-> Tip: if editing the script feels fiddly, you can instead delete the `"--js-runtimes", "node:/usr/bin/node",` line entirely. yt-dlp will try to find a JS runtime on its own, and on a default Node install it usually succeeds. The explicit path just removes the guesswork.
-
-### 3. Run
+### 2. Run
 
 From PowerShell or Command Prompt, in the folder containing the scripts:
 
@@ -260,7 +224,7 @@ This is the cookies case. Export `cookies.txt` as described above and drop it ne
 
 ### Windows: `ytVideo.py` fails with a Node/JS runtime error
 
-The hardcoded `/usr/bin/node` path doesn't exist on Windows. Fix line 9 to your real Node path, or delete that line entirely (see [Windows step 2](#windows)).
+The script autodetects Node on your PATH, so this almost always means Node isn't installed or isn't on PATH. Confirm `node --version` works in a fresh terminal; if it doesn't, install Node (see prerequisites) and reopen the terminal. If Node is installed to a non-standard location that isn't on PATH, add that folder to your PATH and the script will pick it up.
 
 ### Downloads are slow or keep stalling
 
@@ -286,4 +250,4 @@ Both scripts are thin wrappers: they assemble a yt-dlp command as a list of argu
 The defaults baked in are the parts worth not retyping:
 
 - **Audio script**: `-x` (extract audio) + `--audio-format=mp3` + `--audio-quality=0` (best) gives you a clean MP3 every time.
-- **Video script**: `-f bestvideo+bestaudio/best` grabs the highest-quality separate streams and `--merge-output-format mkv` muxes them; MKV is used because it cleanly contains essentially any codec combination yt-dlp might fetch. The `--extractor-args youtube:player_client=android` and explicit JS runtime are workarounds for YouTube's periodic changes to how streams are exposed.
+- **Video script**: `-f bestvideo+bestaudio/best` grabs the highest-quality separate streams and `--merge-output-format mkv` muxes them; MKV is used because it cleanly contains essentially any codec combination yt-dlp might fetch. The `--extractor-args youtube:player_client=android` and the Node.js JS runtime are workarounds for YouTube's periodic changes to how streams are exposed — and the script finds Node for you via `shutil.which()` plus a few common install paths, so the same code works on Linux, macOS, and Windows. If no Node is found, the script omits the runtime flag and lets yt-dlp fall back on its own.
