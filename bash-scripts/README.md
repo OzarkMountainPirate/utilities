@@ -1,7 +1,7 @@
 # bash-scripts
 
 BASH scripts for administering an Ubuntu Server, organized under the
-`/var/scripts` layout used by the [Ubuntu Server 24.04 LTS guide](https://codex.alcott.dev).
+`/var/scripts` layout used by the [Ubuntu Server 24.04 LTS guide]([https://codex.alcott.dev](https://codex.alcott.dev/books/ubuntu-server-2404-lts)).
 
 ## Attribution
 
