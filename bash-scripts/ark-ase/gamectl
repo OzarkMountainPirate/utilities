@@ -1,12 +1,12 @@
 #!/bin/bash
 #############################################################
 ## Name          : gamectl
-## Version       : 1.0
-## Date          : 2026-07-04
+## Version       : 1.1
+## Date          : 2026-07-12
 ## Maintainer    : OzarkMountainPirate - github.com/OzarkMountainPirate/utilities
 ## Credit        : Design inspired by LHammonds' ark-bash toolkit
-##               : (github.com/LHammonds/ark-bash). Written from scratch.
-## Compatibility : Ubuntu Server 24.04 LTS  |  ARK: Survival Evolved (app 376030)
+##               : (github.com/LHammonds/ark-bash).
+## Compatibility : Ubuntu Server 24.04 LTS (Debian 13 - Testing)  |  ARK: Survival Evolved (app 376030)
 ## Requirements  : steamcmd, rsync, mcrcon (RCON), systemd
 ## Purpose       : One tool to install, run, cluster, mod, back up, and update
 ##                 ARK: Survival Evolved dedicated server instances on Linux.
@@ -14,6 +14,7 @@
 ###################### CHANGE LOG ###########################
 ## DATE       VER WHO WHAT WAS CHANGED
 ## ---------- --- --- ---------------------------------------
+## 2026-07-12 1.1 OMP Retry flaky steamcmd downloads (STEAM_RETRIES, resumes from last position); add version subcommand
 ## 2026-07-04 1.0 OMP Created (modern rewrite for 24.04).
 #############################################################
 
@@ -29,6 +30,7 @@ INSTANCES_DIR="${ARK_ROOT}/instances"
 BACKUP_DIR="${ARK_ROOT}/bak"
 CLUSTER_DIR="${ARK_ROOT}/cluster"
 UNIT="/etc/systemd/system/ark@.service"
+VERSION="1.1"
 
 ## ---- small helpers ------------------------------------------------------
 log()  { printf '[gamectl] %s\n' "$*"; }
@@ -53,7 +55,29 @@ keys_for() {
   fi
 }
 
+
 as_ark() { sudo -u "$ARK_USER" -H "$@"; }
+## steamcmd is notoriously flaky on large downloads (CDN stalls, the
+## "Missing configuration" first-run race, 0x402 aborts) but resumes cleanly
+## from wherever it died. Retry before declaring real failure. Override the
+## attempt count via STEAM_RETRIES in gamectl.conf or the environment.
+STEAM_RETRIES="${STEAM_RETRIES:-4}"
+steam_app_update() {
+  local attempt=1 rc=0
+  while :; do
+    as_ark "$STEAMCMD" +force_install_dir "$TEMPLATE" +login anonymous \
+      +app_update "$ARK_APPID" validate +quit && return 0
+    rc=$?
+    if [ "$attempt" -ge "$STEAM_RETRIES" ]; then
+      err "steamcmd failed (rc=$rc) after ${STEAM_RETRIES} attempts"
+      return "$rc"
+    fi
+    err "steamcmd failed (rc=$rc), attempt ${attempt}/${STEAM_RETRIES} -- retrying in 10s (resumes from last position)"
+    attempt=$((attempt + 1))
+    sleep 10
+  done
+}
+
 
 ## ---- launch command builder --------------------------------------------
 ## Writes instances/<key>/server-start.sh from config. Regenerated on
@@ -118,14 +142,14 @@ cmd_install() {
   mkdir -p "$TEMPLATE" "$INSTANCES_DIR" "$BACKUP_DIR" "$CLUSTER_DIR"
   chown -R "${ARK_USER}:${ARK_USER}" "$ARK_ROOT"
   log "downloading ARK server (app ${ARK_APPID}) into template..."
-  as_ark "$STEAMCMD" +force_install_dir "$TEMPLATE" +login anonymous +app_update "$ARK_APPID" validate +quit
+  steam_app_update || die "ARK download failed after ${STEAM_RETRIES} steamcmd attempts"
   log "install complete. Next: 'gamectl create <instance>' for each map."
 }
 
 cmd_update() {
   [ "$(id -u)" -eq 0 ] || die "update must run as root"
   log "updating template (app ${ARK_APPID})..."
-  as_ark "$STEAMCMD" +force_install_dir "$TEMPLATE" +login anonymous +app_update "$ARK_APPID" validate +quit
+  steam_app_update || die "ARK download failed after ${STEAM_RETRIES} steamcmd attempts"
   log "template updated. Run 'gamectl sync all' to roll it out (instances must be stopped)."
 }
 
@@ -300,6 +324,7 @@ case "$cmd" in
   mods)    cmd_mods    "$@" ;;
   backup)  cmd_backup  "$@" ;;
   restore) cmd_restore "$@" ;;
+  version) echo "gamectl ${VERSION}" ;;
   ""|-h|--help|help) usage ;;
   *) err "unknown command '$cmd'"; usage; exit 1 ;;
 esac
