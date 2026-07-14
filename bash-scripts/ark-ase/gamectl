@@ -1,7 +1,7 @@
 #!/bin/bash
 #############################################################
 ## Name          : gamectl
-## Version       : 1.2
+## Version       : 1.3
 ## Date          : 2026-07-12
 ## Maintainer    : OzarkMountainPirate - github.com/OzarkMountainPirate/utilities
 ## Credit        : Design inspired by LHammonds' ark-bash toolkit
@@ -14,6 +14,8 @@
 ###################### CHANGE LOG ###########################
 ## DATE       VER WHO WHAT WAS CHANGED
 ## ---------- --- --- ---------------------------------------
+## 2026-07-13 1.3 OMP Fix ARK_BRANCH: pass -beta as SEPARATE steamcmd args
+##            :     (quoted "APPID -beta X" was silently ignored)
 ## 2026-07-12 1.2 OMP Add ARK_BRANCH (Steam beta branch pin, e.g. preaquatica)
 ## 2026-07-12 1.1 OMP Retry flaky steamcmd downloads (STEAM_RETRIES, resumes from last position); add version subcommand
 ## 2026-07-04 1.0 OMP Created (modern rewrite for 24.04).
@@ -31,7 +33,7 @@ INSTANCES_DIR="${ARK_ROOT}/instances"
 BACKUP_DIR="${ARK_ROOT}/bak"
 CLUSTER_DIR="${ARK_ROOT}/cluster"
 UNIT="/etc/systemd/system/ark@.service"
-VERSION="1.2"
+VERSION="1.3"
 
 ## ---- small helpers ------------------------------------------------------
 log()  { printf '[gamectl] %s\n' "$*"; }
@@ -64,15 +66,19 @@ as_ark() { sudo -u "$ARK_USER" -H "$@"; }
 ## attempt count via STEAM_RETRIES in gamectl.conf or the environment.
 STEAM_RETRIES="${STEAM_RETRIES:-4}"
 steam_app_update() {
-  local attempt=1 rc=0 app_arg="$ARK_APPID"
-  # Steam beta branch pin (e.g. preaquatica). steamcmd on Linux requires the
-  # branch flag INSIDE the app_update argument: +app_update "376030 -beta X".
+  local attempt=1 rc=0
+  # Steam beta branch pin (e.g. preaquatica). The flag MUST be passed as
+  # separate argv elements: +app_update 376030 -beta preaquatica validate.
+  # Quoting it into one argument ("376030 -beta preaquatica") does NOT work:
+  # steamcmd parses the leading app id, silently DISCARDS the rest, and
+  # updates the live branch while reporting success.
+  local -a app_args=("$ARK_APPID")
   if [ -n "${ARK_BRANCH:-}" ]; then
-    app_arg="$ARK_APPID -beta $ARK_BRANCH"
+    app_args+=(-beta "$ARK_BRANCH")
   fi
   while :; do
     as_ark "$STEAMCMD" +force_install_dir "$TEMPLATE" +login anonymous \
-      +app_update "$app_arg" validate +quit && return 0
+      +app_update "${app_args[@]}" validate +quit && return 0
     rc=$?
     if [ "$attempt" -ge "$STEAM_RETRIES" ]; then
       err "steamcmd failed (rc=$rc) after ${STEAM_RETRIES} attempts"
