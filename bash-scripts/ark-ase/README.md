@@ -71,4 +71,22 @@ sudo gamectl update       # pull new server files into the template (instances s
 sudo gamectl stop all
 sudo gamectl sync all     # roll the template into each instance (saves preserved)
 sudo gamectl start all
+
+## Versioning
+
+Releases are annotated git tags (`v1.1`, `v1.2`, ...). Downstream automation
+(e.g. [ark-fleet](https://github.com/OzarkMountainPirate/ark-fleet)) pins a
+tag plus a sha256 of this script and verifies it at deploy time; the deployed
+version is auditable at runtime with `gamectl version`. Tags are immutable —
+fixes ship as a new tag and a pin bump downstream.
+
+## Reliability & branches
+
+- steamcmd downloads retry automatically (`STEAM_RETRIES`, default 4,
+  override in gamectl.conf); downloads resume between attempts.
+- `ARK_BRANCH` in gamectl.conf pins the server to a Steam beta branch
+  (e.g. `preaquatica`). Client and server major versions must match —
+  mismatched servers are silently hidden from the in-game browser. Note:
+  the flag is passed as separate steamcmd arguments; quoting it into one
+  argument is silently ignored (learned the hard way, fixed in 1.3).
 ```
