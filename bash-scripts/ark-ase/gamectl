@@ -1,7 +1,7 @@
 #!/bin/bash
 #############################################################
 ## Name          : gamectl
-## Version       : 1.3
+## Version       : 1.4
 ## Date          : 2026-07-12
 ## Maintainer    : OzarkMountainPirate - github.com/OzarkMountainPirate/utilities
 ## Credit        : Design inspired by LHammonds' ark-bash toolkit
@@ -14,6 +14,8 @@
 ###################### CHANGE LOG ###########################
 ## DATE       VER WHO WHAT WAS CHANGED
 ## ---------- --- --- ---------------------------------------
+## 2026-07-15 1.4 OMP ARK_EXTRA_QUERY: extra ?Key=Value launch options from
+##            :     gamectl.conf (rate multipliers etc.), appended verbatim
 ## 2026-07-13 1.3 OMP Fix ARK_BRANCH: pass -beta as SEPARATE steamcmd args
 ##            :     (quoted "APPID -beta X" was silently ignored)
 ## 2026-07-12 1.2 OMP Add ARK_BRANCH (Steam beta branch pin, e.g. preaquatica)
@@ -33,7 +35,7 @@ INSTANCES_DIR="${ARK_ROOT}/instances"
 BACKUP_DIR="${ARK_ROOT}/bak"
 CLUSTER_DIR="${ARK_ROOT}/cluster"
 UNIT="/etc/systemd/system/ark@.service"
-VERSION="1.3"
+VERSION="1.4"
 
 ## ---- small helpers ------------------------------------------------------
 log()  { printf '[gamectl] %s\n' "$*"; }
@@ -100,6 +102,10 @@ write_start_script() {
   local bin="${dir}/ShooterGame/Binaries/Linux"
   local opts="${I_MAP}?listen"
   opts+="?SessionName=${key}"
+  # Extra ?Key=Value options from gamectl.conf (e.g. rate multipliers).
+  # Launch options override GameUserSettings.ini, so automation can manage
+  # rates without fighting ARK's rewrite of that file on shutdown.
+  [ -n "${ARK_EXTRA_QUERY:-}" ] && opts+="${ARK_EXTRA_QUERY}"
   opts+="?ServerAdminPassword=${ADMIN_PASSWORD}"
   opts+="?RCONEnabled=True?RCONPort=${I_RCON}"
   opts+="?Port=${I_GAME}?QueryPort=${I_QUERY}"
