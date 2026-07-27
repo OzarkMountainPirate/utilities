@@ -1,7 +1,7 @@
 #!/bin/bash
 #############################################################
 ## Name          : gamectl
-## Version       : 1.5.1
+## Version       : 1.5.2
 ## Date          : 2026-07-12
 ## Maintainer    : OzarkMountainPirate - github.com/OzarkMountainPirate/utilities
 ## Credit        : Design inspired by LHammonds' ark-bash toolkit
@@ -14,6 +14,9 @@
 ###################### CHANGE LOG ###########################
 ## DATE       VER WHO WHAT WAS CHANGED
 ## ---------- --- --- ---------------------------------------
+## 2026-07-26 1.5.2 OMP mods: flock guard -- concurrent runs (e.g. an orphaned
+##            :     async job after Ctrl-C) previously fought over the same
+##            :     dirs, shredding each other's temp files mid-extract.
 ## 2026-07-26 1.5.1 OMP extract: atomic (tmp+mv), size-verified vs sidecars
 ##            :     (CRLF-safe), per-file retry, LOUD failures. 1.5 kept
 ##            :     truncated files when an inflate died mid-file, causing
@@ -43,7 +46,7 @@ INSTANCES_DIR="${ARK_ROOT}/instances"
 BACKUP_DIR="${ARK_ROOT}/bak"
 CLUSTER_DIR="${ARK_ROOT}/cluster"
 UNIT="/etc/systemd/system/ark@.service"
-VERSION="1.5.1"
+VERSION="1.5.2"
 
 ## ---- small helpers ------------------------------------------------------
 log()  { printf '[gamectl] %s\n' "$*"; }
@@ -375,6 +378,10 @@ extract_mod() {
 
 cmd_mods() {
   [ "$(id -u)" -eq 0 ] || die "mods must run as root"
+  # Exactly one mods run at a time: an orphaned concurrent run (async job
+  # surviving a Ctrl-C) otherwise deletes this run's temp files mid-extract.
+  exec 9>"${ARK_ROOT}/.gamectl-mods.lock"
+  flock -n 9 || die "another 'gamectl mods' is already running (lock: ${ARK_ROOT}/.gamectl-mods.lock)"
   local force="${1:-}"
   local modid installed=0 skipped=0 failed=0
   [ -n "${MODS}" ] || { log "MODS is empty in gamectl.conf -- nothing to do"; return 0; }
