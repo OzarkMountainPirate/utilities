@@ -1,7 +1,7 @@
 #!/bin/bash
 #############################################################
 ## Name          : gamectl
-## Version       : 1.5.4
+## Version       : 1.5.5
 ## Date          : 2026-07-12
 ## Maintainer    : OzarkMountainPirate - github.com/OzarkMountainPirate/utilities
 ## Credit        : Design inspired by LHammonds' ark-bash toolkit
@@ -14,6 +14,13 @@
 ###################### CHANGE LOG ###########################
 ## DATE       VER WHO WHAT WAS CHANGED
 ## ---------- --- --- ---------------------------------------
+## 2026-07-30 1.5.5 OMP mods: extract from WindowsNoEditor, not LinuxNoEditor.
+##            :     ASE dedicated servers -- Linux included -- load WINDOWS
+##            :     cooked packages. Sourcing the Linux client cook produced
+##            :     "Bad name index N/120" + SEGV ~25s into startup for EVERY
+##            :     mod. ark-server-tools hardcodes Windows for this reason.
+##            :     Override with MOD_BRANCH if you truly need otherwise.
+##            :     Re-extract existing mods with: gamectl mods force
 ## 2026-07-29 1.5.4 OMP mods: PRUNE undeclared workshop mods (declared state
 ##            :     is truth). Retired mods used to accumulate forever, and a
 ##            :     stale mod whose assets no longer resolve crashes the server
@@ -57,7 +64,7 @@ INSTANCES_DIR="${ARK_ROOT}/instances"
 BACKUP_DIR="${ARK_ROOT}/bak"
 CLUSTER_DIR="${ARK_ROOT}/cluster"
 UNIT="/etc/systemd/system/ark@.service"
-VERSION="1.5.4"
+VERSION="1.5.5"
 
 ## ---- small helpers ------------------------------------------------------
 log()  { printf '[gamectl] %s\n' "$*"; }
@@ -313,9 +320,20 @@ extract_mod() {
   local modid="$1"
   local src="${TEMPLATE}/steamapps/workshop/content/346110/${modid}"
   local dest="${TEMPLATE}/ShooterGame/Content/Mods/${modid}"
-  if   [ -d "${src}/LinuxNoEditor" ];   then src="${src}/LinuxNoEditor"
-  elif [ -d "${src}/WindowsNoEditor" ]; then src="${src}/WindowsNoEditor"; fi
+  ## ASE mod content is cooked for WINDOWS even when the server runs Linux:
+  ## the dedicated server loads Windows-cooked packages. The LinuxNoEditor
+  ## tree targets the long-abandoned Linux CLIENT; feeding it to the server
+  ## yields packages it mis-parses -- "Bad name index N/120" in LinkerLoad,
+  ## SEGV ~25s in, empty ShooterGame.log, identical for every mod.
+  ## ark-server-tools hardcodes this (mod_branch defaults to Windows).
+  ## Selection is by mod.info presence, matching arkmanager.
+  local branch="${MOD_BRANCH:-Windows}"
+  if   [ -f "${src}/${branch}NoEditor/mod.info" ]; then src="${src}/${branch}NoEditor"
+  elif [ -f "${src}/WindowsNoEditor/mod.info" ];   then src="${src}/WindowsNoEditor"
+  elif [ -f "${src}/LinuxNoEditor/mod.info" ];     then src="${src}/LinuxNoEditor"
+  fi
   [ -f "${src}/mod.info" ] || { err "${modid}: no mod.info in download (broken/incomplete); skipping"; return 1; }
+  log "mod ${modid}: source $(basename "$src")"
 
   rm -rf "$dest"; mkdir -p "$dest"
   rsync -a --exclude='*.z' --exclude='*.z.uncompressed_size' "${src}/" "${dest}/"
