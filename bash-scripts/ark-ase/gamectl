@@ -1,8 +1,8 @@
 #!/bin/bash
 #############################################################
 ## Name          : gamectl
-## Version       : 1.5.5
-## Date          : 2026-07-12
+## Version       : 1.6.0
+## Date          : 2026-07-31
 ## Maintainer    : OzarkMountainPirate - github.com/OzarkMountainPirate/utilities
 ## Credit        : Design inspired by LHammonds' ark-bash toolkit
 ##               : (github.com/LHammonds/ark-bash).
@@ -11,60 +11,11 @@
 ## Purpose       : One tool to install, run, cluster, mod, back up, and update
 ##                 ARK: Survival Evolved dedicated server instances on Linux.
 ## Exit Codes    : 0 = success, 1 = usage/arg error, 2 = runtime error
-###################### CHANGE LOG ###########################
-## DATE       VER WHO WHAT WAS CHANGED
-## ---------- --- --- ---------------------------------------
-## 2026-07-30 1.5.5 OMP mods: extract from WindowsNoEditor, not LinuxNoEditor.
-##            :     ASE dedicated servers -- Linux included -- load WINDOWS
-##            :     cooked packages. Sourcing the Linux client cook produced
-##            :     "Bad name index N/120" + SEGV ~25s into startup for EVERY
-##            :     mod. ark-server-tools hardcodes Windows for this reason.
-##            :     Override with MOD_BRANCH if you truly need otherwise.
-##            :     Re-extract existing mods with: gamectl mods force
-## 2026-07-29 1.5.4 OMP mods: PRUNE undeclared workshop mods (declared state
-##            :     is truth). Retired mods used to accumulate forever, and a
-##            :     stale mod whose assets no longer resolve crashes the server
-##            :     at load with "Bad name index" in LinkerLoad.
-##            :     status: fix STATE printing twice for non-active units.
-## 2026-07-29 1.5.3 OMP mods: an EMPTY list now clears ActiveMods instead of
-##            :     returning early (1.5.2 silently ignored mod REMOVALS).
-##            :     sync: returns nonzero when it skipped running instances,
-##            :     so callers see the no-op instead of assuming success.
-##            :     status: reports restart count + last-start time, so a
-##            :     crash-looping unit stops reading as a healthy "active".
-## 2026-07-26 1.5.2 OMP mods: flock guard -- concurrent runs (e.g. an orphaned
-##            :     async job after Ctrl-C) previously fought over the same
-##            :     dirs, shredding each other's temp files mid-extract.
-## 2026-07-26 1.5.1 OMP extract: atomic (tmp+mv), size-verified vs sidecars
-##            :     (CRLF-safe), per-file retry, LOUD failures. 1.5 kept
-##            :     truncated files when an inflate died mid-file, causing
-##            :     "Bad name index" SEGVs. force now steamcmd-validates.
-## 2026-07-26 1.5 OMP mods: pre-install Workshop mods (steamcmd download +
-##            :     .z extract + .mod gen, ported from ark-server-tools).
-##            :     -automanagedmods now OFF by default: its child-process
-##            :     wait crashes (SEGV, waitid EINVAL) on modern Linux.
-## 2026-07-15 1.4 OMP ARK_EXTRA_QUERY: extra ?Key=Value launch options from
-##            :     gamectl.conf (rate multipliers etc.), appended verbatim
-## 2026-07-13 1.3 OMP Fix ARK_BRANCH: pass -beta as SEPARATE steamcmd args
-##            :     (quoted "APPID -beta X" was silently ignored)
-## 2026-07-12 1.2 OMP Add ARK_BRANCH (Steam beta branch pin, e.g. preaquatica)
-## 2026-07-12 1.1 OMP Retry flaky steamcmd downloads (STEAM_RETRIES, resumes from last position); add version subcommand
-## 2026-07-04 1.0 OMP Created (modern rewrite for 24.04).
+## Change log    : see CHANGELOG.md alongside this script. Releases are
+##               : immutable tags; consumers pin a tag + sha256.
 #############################################################
 
-set -euo pipefail
-
-CONF="${GAMECTL_CONF:-/etc/gamectl.conf}"
-[ -r "$CONF" ] || { echo "ERROR: config not found: $CONF" >&2; exit 2; }
-# shellcheck source=/dev/null
-source "$CONF"
-
-TEMPLATE="${ARK_ROOT}/template"
-INSTANCES_DIR="${ARK_ROOT}/instances"
-BACKUP_DIR="${ARK_ROOT}/bak"
-CLUSTER_DIR="${ARK_ROOT}/cluster"
-UNIT="/etc/systemd/system/ark@.service"
-VERSION="1.5.5"
+VERSION="1.6.0"
 
 ## ---- small helpers ------------------------------------------------------
 log()  { printf '[gamectl] %s\n' "$*"; }
