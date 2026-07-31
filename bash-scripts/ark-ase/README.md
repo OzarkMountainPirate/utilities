@@ -4,7 +4,7 @@ A single-command toolkit for running **ARK: Survival Evolved** dedicated server
 instances on Ubuntu Server 24.04 — install, multi-map clustering, mods,
 save-safe backups, RCON, and template-based updates.
 
-Companion to the [ARK: Survival Evolved guide](https://codex.alcott.dev).
+Companion to the [ARK: Survival Evolved guide](https://codex.alcott.dev/books/ark-dedicated-linux-server/page/overview).
 
 ## Provenance & attribution
 
