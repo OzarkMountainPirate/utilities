@@ -1,7 +1,7 @@
 #!/bin/bash
 #############################################################
 ## Name          : gamectl
-## Version       : 1.6.1
+## Version       : 1.6.2
 ## Date          : 2026-07-31
 ## Maintainer    : OzarkMountainPirate - github.com/OzarkMountainPirate/utilities
 ## Credit        : Design inspired by LHammonds' ark-bash toolkit
@@ -27,7 +27,7 @@ INSTANCES_DIR="${ARK_ROOT}/instances"
 BACKUP_DIR="${ARK_ROOT}/bak"
 CLUSTER_DIR="${ARK_ROOT}/cluster"
 UNIT="/etc/systemd/system/ark@.service"
-VERSION="1.6.1"
+VERSION="1.6.2"
 
 ## ---- small helpers ------------------------------------------------------
 log()  { printf '[gamectl] %s\n' "$*"; }
@@ -250,10 +250,26 @@ cmd_status() {
   done
 }
 
+## Accepts 'all' like stop/start/sync do, so fleet-wide commands work without
+## the caller knowing which map lives on which host:
+##   ansible ark_fleet -a 'gamectl rcon all "DestroyWildDinos"'
+## RCON only answers once a server has FULLY loaded; a booting instance fails
+## here. Failures are reported per instance and do not abort the others.
 cmd_rcon() {
-  local key="${1:?usage: gamectl rcon <instance> <command...>}"; shift; resolve "$key"
+  local sel="${1:?usage: gamectl rcon <instance|all> <command...>}"; shift
+  [ $# -gt 0 ] || die "usage: gamectl rcon <instance|all> <command...>"
   command -v mcrcon >/dev/null || die "mcrcon not installed"
-  mcrcon -H 127.0.0.1 -P "$I_RCON" -p "$ADMIN_PASSWORD" "$*"
+  local key failed=0 multi=0
+  [ "$sel" = "all" ] && multi=1
+  for key in $(keys_for "$sel"); do
+    resolve "$key"
+    [ "$multi" -eq 1 ] && printf '== %s ==\n' "$key"
+    if ! mcrcon -H 127.0.0.1 -P "$I_RCON" -p "$ADMIN_PASSWORD" "$*"; then
+      err "${key}: RCON failed (server still loading, or stopped)"
+      failed=$((failed + 1))
+    fi
+  done
+  [ "$failed" -eq 0 ]
 }
 
 ## Re-apply the mod list to all instances and (re)start so -automanagedmods
@@ -541,7 +557,7 @@ gamectl -- ARK: Survival Evolved server management
   gamectl stop   [instance|all]   Save + gracefully stop instance(s)
   gamectl restart[instance|all]   Stop then start
   gamectl status                  Show all instances and their state
-  gamectl rcon   <instance> <cmd> Send an RCON command (via mcrcon)
+  gamectl rcon <instance|all> <cmd>  Send an RCON command (via mcrcon)
   gamectl mods [force]            Download + install Workshop mods into the
                                   template ('force' reinstalls); sync applies
   gamectl backup [instance|all]   Save-safe archive of instance save data

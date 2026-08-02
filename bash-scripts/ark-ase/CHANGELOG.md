@@ -11,6 +11,27 @@ a moved tag. The deployed version is auditable at runtime with
 
 ---
 
+## 1.6.2 — 2026-08-02
+
+- **`rcon` accepts `all`**, like `stop`/`start`/`sync`. Fleet-wide commands no
+  longer require knowing which map runs on which host:
+  `ansible ark_fleet -a 'gamectl rcon all "DestroyWildDinos"'`.
+  A failing instance is reported by name and does not abort the others; the
+  exit status reflects whether every instance succeeded.
+
+## 1.6.1 — 2026-08-02
+
+- **Restore the preamble deleted in 1.6.0.** Truncating the header removed
+  `set -euo pipefail`, the `gamectl.conf` source, and the `ARK_ROOT`-derived
+  path variables along with the changelog comments. `INSTANCES` was therefore
+  always empty: `status` printed headers with no rows, and `start`/`stop`
+  iterated over nothing. `bash -n` and shellcheck passed throughout — the file
+  was valid shell that did nothing.
+
+  *Lesson: deleting a range between two string anchors requires printing what
+  falls between them first. A syntax check cannot tell you that code is
+  missing.*
+
 ## 1.6.0 — 2026-07-31
 
 First public release. No functional change.
