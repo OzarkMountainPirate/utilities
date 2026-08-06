@@ -1,7 +1,8 @@
-# ark-fleet shellcheck config.
-# gamectl now lives (and should be linted) in its upstream repo; these
-# disables remain for ad-hoc local checks of a fetched copy — the advisory
-# (info) findings below are intentional idioms there, not defects:
+# utilities shellcheck config.
+# gamectl (bash-scripts/ark-ase/gamectl) is the upstream copy — it lives here
+# and is linted here by .github/workflows/shellcheck.yml on every push and
+# pull request. The advisory (info) findings below are intentional idioms in
+# that script, not defects:
 #   SC2153 — "CLUSTER_ID may not be assigned" (sourced from /etc/gamectl.conf)
 #   SC2012 — "use find instead of ls" (style; controlled filenames)
 #   SC2015 — "A && B || C is not if-then-else" (guard where C is die; dying on

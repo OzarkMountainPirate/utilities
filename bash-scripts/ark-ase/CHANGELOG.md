@@ -6,6 +6,10 @@ time, so tags are immutable — a fix ships as a new tag and a pin bump, never a
 a moved tag. The deployed version is auditable at runtime with
 `gamectl version`.
 
+Tags through `v1.5` were two-part (`v1.1`, `v1.2`, ...); `v1.5.1` onward are
+three-part. 1.0 predates tagging and has no tag. Existing tags stay as they
+are — the immutability rule applies to them too.
+
 `gamectl` and `gamectl.conf` ship together whenever the conf contract changes
 (a new variable, a changed meaning). Script-only releases leave the conf alone.
 
