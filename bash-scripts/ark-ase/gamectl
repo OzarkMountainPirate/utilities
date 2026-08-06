@@ -1,9 +1,13 @@
 #!/bin/bash
 #############################################################
 ## Name          : gamectl
-## Version       : 1.6.2
-## Date          : 2026-07-31
+## Version       : 1.6.3
+## Date          : 2026-08-06
 ## Maintainer    : OzarkMountainPirate - github.com/OzarkMountainPirate/utilities
+## Copyright     : (C) 2026 Carl Alcott
+## License       : GPL-3.0-or-later. See the LICENSE file in the repository
+##               : root, or <https://www.gnu.org/licenses/>.
+## 
 ## Credit        : Design inspired by LHammonds' ark-bash toolkit
 ##               : (github.com/LHammonds/ark-bash).
 ## Compatibility : Ubuntu Server 24.04 LTS (Debian 13 - Testing)  |  ARK: Survival Evolved (app 376030)
@@ -27,7 +31,7 @@ INSTANCES_DIR="${ARK_ROOT}/instances"
 BACKUP_DIR="${ARK_ROOT}/bak"
 CLUSTER_DIR="${ARK_ROOT}/cluster"
 UNIT="/etc/systemd/system/ark@.service"
-VERSION="1.6.2"
+VERSION="1.6.3"
 
 ## ---- small helpers ------------------------------------------------------
 log()  { printf '[gamectl] %s\n' "$*"; }

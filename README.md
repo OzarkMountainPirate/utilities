@@ -32,6 +32,13 @@ generalized so they're useful on any modern Linux box.
 
 ## License
 
+Copyright (C) 2025-2026 Carl Alcott
+
+Released under the [GNU General Public License v3.0 or later](LICENSE).
+
+`bash-scripts/servers` is a fork of LHammonds' `ubuntu-bash` and remains
+copyright its original author; modifications are copyright Carl Alcott. See
+[that folder's README](bash-scripts/servers/README.md) for full attribution.
 Licensed under the [GNU General Public License v3.0](LICENSE).
 
 ## Disclaimer
