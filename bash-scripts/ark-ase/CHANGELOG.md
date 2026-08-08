@@ -15,6 +15,11 @@ are — the immutability rule applies to them too.
 
 ---
 
+## 1.6.3 — 2026-08-06
+
+- Added copyright and GPL-3.0-or-later notice to the script header. No
+  functional change; retagged so downstream pins verify against the new bytes.
+
 ## 1.6.2 — 2026-08-02
 
 - **`rcon` accepts `all`**, like `stop`/`start`/`sync`. Fleet-wide commands no

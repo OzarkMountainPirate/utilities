@@ -4,3 +4,13 @@ cookies.txt
 # Python
 __pycache__/
 *.pyc
+
+# yt-dlp output — never commit downloaded media
+*.mp3
+*.m4a
+*.opus
+*.flac
+*.wav
+*.mp4
+*.mkv
+*.webm
