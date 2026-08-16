@@ -17,8 +17,24 @@ modernized for 24.04. Licensed **GPL-3.0** (see the repo `LICENSE`).
 Third-party tools this toolkit *uses* (not bundled):
 - **[mcrcon](https://github.com/Tiiffi/mcrcon)** (Tiiffi, zlib) — RCON client.
 - **SteamCMD** (Valve) — server + mod downloads.
-- Mods are downloaded and unpacked **by the ARK server itself** via
-  `-automanagedmods`; no third-party mod tool is required.
+- **SteamCMD** downloads mods; `gamectl` unpacks them itself (see Mods below).
+
+### Ported code
+
+`extract_mod()` — the UE `.z` chunk inflation and `<id>.mod` metadata handling —
+is ported from **[ark-server-tools / arkmanager](https://github.com/arkmanager/ark-server-tools)**,
+the long-standing reference implementation:
+
+```
+The MIT License (MIT)
+Copyright (c) 2015 Fez Vrasta
+```
+
+MIT is compatible with GPL-3.0, which is why `gamectl` can carry it. The MIT
+terms ask that the copyright and permission notice travel with substantial
+portions of the software, and `gamectl` is distributed as a single standalone
+file — downstream automation fetches the raw script on its own, not the repo —
+so the notice belongs in the script header rather than only here.
 
 ## Files
 
@@ -56,13 +72,70 @@ gamectl status
 Put Workshop IDs in `MODS=` (comma-separated) in `gamectl.conf`, then:
 
 ```bash
-sudo gamectl mods        # writes ActiveMods to each instance + sets symlinks
-sudo gamectl restart all # server downloads & unpacks via -automanagedmods
+sudo gamectl mods         # download + install into the template
+sudo gamectl sync all     # roll the template into instances
+sudo gamectl restart all
 ```
 
-The `-automanagedmods` path is reliable *only* with the SteamCMD symlinks in
-place, which `gamectl` sets up automatically on `create`/`sync`/`mods`. This is
-the fix most older Linux guides missed.
+`gamectl mods` does the work itself — it is **not** a wrapper around the
+engine's `-automanagedmods`. For each ID it runs SteamCMD
+`workshop_download_item`, inflates the UE `.z` chunk archives with size
+verification and retry, builds the `<id>.mod` metadata file, and writes
+`ActiveMods` into each instance's config. The `.z` and `.mod` binary handling is
+ported from [ark-server-tools](https://github.com/FezVrasta/ark-server-tools).
+
+`sudo gamectl mods force` reinstalls mods already present, for when a download
+landed truncated.
+
+**`-automanagedmods` is off by default and should stay that way.** The engine's
+own mod manager SEGVs on modern Linux — that is the reason `gamectl` implements
+installation itself. If you have a specific reason to re-enable it, set
+`ARK_AUTOMANAGED_MODS=true` in `gamectl.conf`, and expect the crash this
+toolkit exists to avoid.
+
+`MOD_BRANCH` controls which cook is extracted, defaulting to `Windows`
+(i.e. `WindowsNoEditor`). The Linux cook SEGVs the server, so leave this alone
+unless you know a given mod ships a working Linux build.
+
+## Commands
+
+`gamectl` with no arguments prints its own usage; this is the same list.
+
+| Command | What it does |
+|---|---|
+| `install` | First-time setup + download server to template |
+| `update` | Update the template from Steam |
+| `create <instance>` | Provision an instance from the template |
+| `sync [instance\|all]` | Roll template updates into stopped instance(s) |
+| `start` / `stop` / `restart [instance\|all]` | `stop` saves first, then stops gracefully |
+| `status` | Show all instances and their state |
+| `rcon <instance\|all> <cmd>` | Send an RCON command via mcrcon |
+| `mods [force]` | Download + install Workshop mods into the template |
+| `backup [instance\|all]` | Save-safe archive of instance save data |
+| `restore <instance> [archive]` | Restore newest, or a named, backup |
+| `version` | Print the toolkit version |
+
+### Backups and restore
+
+```bash
+sudo gamectl backup all              # save-safe: flushes saves before archiving
+sudo gamectl restore ragnarok        # newest archive for that instance
+sudo gamectl restore ragnarok <path> # a specific archive
+```
+
+`backup` is save-safe: it flushes world state before archiving, so the result is
+not a torn copy of a live save. This is what `ark-backup` calls on a timer in
+[ark-fleet](https://github.com/OzarkMountainPirate/ark-fleet).
+
+### RCON
+
+```bash
+sudo gamectl rcon ragnarok "SaveWorld"
+sudo gamectl rcon all "Broadcast Server restarting in 5 minutes"
+```
+
+Requires `mcrcon` in `PATH` and `RCON_PORT`/`RCON_PASSWORD` set per instance in
+`gamectl.conf`.
 
 ## Updates
 
