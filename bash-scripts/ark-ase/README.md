@@ -180,4 +180,3 @@ fixes ship as a new tag and a pin bump downstream.
   mismatched servers are silently hidden from the in-game browser. Note:
   the flag is passed as separate steamcmd arguments; quoting it into one
   argument is silently ignored (learned the hard way, fixed in 1.3).
-  
