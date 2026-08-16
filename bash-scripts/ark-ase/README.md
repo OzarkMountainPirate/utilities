@@ -103,9 +103,7 @@ unless you know a given mod ships a working Linux build.
 `gamectl` with no arguments prints its own usage; this is the same list.
 
 | Command | What it does |
-
-|---|---|---|
-
+|---|---|
 | `install` | First-time setup + download server to template |
 | `update` | Update the template from Steam |
 | `create <instance>` | Provision an instance from the template |
