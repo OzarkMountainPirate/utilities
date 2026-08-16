@@ -19,7 +19,7 @@ Runs yt-dlp with audio extraction enabled, converts the result to MP3 at the hig
 
 Equivalent yt-dlp command:
 
-```
+```bash
 yt-dlp -x --audio-format=mp3 --audio-quality=0 --output="%(title)s.%(ext)s" <URL>
 ```
 
@@ -29,7 +29,7 @@ Downloads the best video and best audio streams, merges them into an MKV contain
 
 Equivalent yt-dlp command (the `node:` path is filled in automatically based on where Node is found):
 
-```
+```bash
 yt-dlp --js-runtimes node:<auto-detected> --extractor-args youtube:player_client=android \
        -f bestvideo+bestaudio/best --merge-output-format mkv \
        --output="%(title)s.%(ext)s" --retries 5 <URL>
@@ -47,7 +47,7 @@ Install instructions per platform are below.
 
 ## Linux
 
-### 1. Install dependencies
+### 1. Install dependencies on Linux
 
 ```bash
 # Debian / Ubuntu / Mint
@@ -120,7 +120,7 @@ yt-audio "https://youtu.be/VIDEO_ID"
 
 ## Windows
 
-### 1. Install dependencies
+### 1. Install dependencies on Windows
 
 The cleanest path on Windows is [winget](https://learn.microsoft.com/en-us/windows/package-manager/winget/) (built into Windows 10/11). Open PowerShell and run:
 
@@ -134,6 +134,7 @@ winget install OpenJS.NodeJS
 Close and reopen PowerShell afterward so the new PATH entries take effect.
 
 If you don't use winget, the manual equivalents are:
+
 - **Python** from <https://www.python.org/downloads/> — during install, check **"Add python.exe to PATH"**.
 - **FFmpeg** from <https://www.gyan.dev/ffmpeg/builds/> — download a release build, unzip it, and add its `bin` folder to your PATH.
 - **yt-dlp** from <https://github.com/yt-dlp/yt-dlp/releases> — grab `yt-dlp.exe` and put it somewhere on your PATH.
@@ -233,6 +234,7 @@ The script autodetects Node on your PATH, so this almost always means Node isn't
 ```bash
 python3 -m pip install -U yt-dlp     # Linux
 ```
+
 ```powershell
 winget upgrade yt-dlp.yt-dlp         # Windows (or re-download yt-dlp.exe)
 ```

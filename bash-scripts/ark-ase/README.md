@@ -83,7 +83,7 @@ engine's `-automanagedmods`. For each ID it runs SteamCMD
 `workshop_download_item`, inflates the UE `.z` chunk archives with size
 verification and retry, builds the `<id>.mod` metadata file, and writes
 `ActiveMods` into each instance's config. The `.z` and `.mod` binary handling is
-ported from [ark-server-tools](https://github.com/FezVrasta/ark-server-tools).
+ported from [ark-server-tools](https://github.com/arkmanager/ark-server-tools).
 
 `sudo gamectl mods force` reinstalls mods already present, for when a download
 landed truncated.
@@ -180,3 +180,4 @@ fixes ship as a new tag and a pin bump downstream.
   mismatched servers are silently hidden from the in-game browser. Note:
   the flag is passed as separate steamcmd arguments; quoting it into one
   argument is silently ignored (learned the hard way, fixed in 1.3).
+  

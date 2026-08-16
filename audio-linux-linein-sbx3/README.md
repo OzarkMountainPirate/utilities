@@ -8,7 +8,7 @@ This is a device-specific implementation for the **Creative Sound Blaster X3** (
 
 ## Hardware Setup
 
-```
+```text
 PC ─────────────── USB ──────────────────┐
                                          X3 ──── Headphones / Speakers
 Nintendo Switch ── HDMI ── Monitor ── 3.5mm ─── X3 Line-In
@@ -63,7 +63,7 @@ wpctl status
 
 In the **Streams** section you should see:
 
-```
+```text
 output.loopback-...
      output_FL  >  Sound Blaster X3:playback_FL  [active]
      output_FR  >  Sound Blaster X3:playback_FR  [active]

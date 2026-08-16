@@ -17,7 +17,7 @@ in git history. Distributed under **GPL-3.0**, the same license as upstream — 
 
 ## Layout
 
-```
+```text
 common/   Shared config imported by the scripts
   standard.conf     <- localize this (Company, MyDomain, emails, paths)
 data/     Data files

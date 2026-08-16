@@ -49,7 +49,7 @@ Look for the `alsa_card.usb-...` entry matching your device.
 
 Example output (your serial ID will differ):
 
-```
+```text
 alsa_input.usb-Creative_Technology_Ltd_Sound_Blaster_X3_FACA0D7DF9F2D4AF-03.analog-stereo
 alsa_output.usb-Creative_Technology_Ltd_Sound_Blaster_X3_FACA0D7DF9F2D4AF-03.analog-stereo
 alsa_card.usb-Creative_Technology_Ltd_Sound_Blaster_X3_FACA0D7DF9F2D4AF-03
@@ -73,6 +73,7 @@ nano ~/.config/pipewire/pipewire.conf.d/10-device-loopback.conf
 ```
 
 Replace:
+
 - `YOUR_DEVICE_ALSA_INPUT_NAME` → your `alsa_input.usb-...` source name
 - `YOUR_DEVICE_ALSA_OUTPUT_NAME` → your `alsa_output.usb-...` sink name
 
@@ -94,6 +95,7 @@ nano ~/.config/wireplumber/wireplumber.conf.d/50-device-profile.conf
 ```
 
 Replace:
+
 - `YOUR_DEVICE_CARD_NAME` → your `alsa_card.usb-...` card name from Step 1
 
 ---
@@ -114,7 +116,7 @@ wpctl status
 
 In the **Streams** section you should see two loopback entries:
 
-```
+```text
 output.loopback-...
      output_FL  >  YourDevice:playback_FL  [active]
      output_FR  >  YourDevice:playback_FR  [active]

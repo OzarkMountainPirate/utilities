@@ -11,6 +11,7 @@ generalized so they're useful on any modern Linux box.
 ## Contents
 
 | Directory | Description |
+
 |-----------|-------------|
 | [`backup`](backup/) | A 3-2-1 backup stack for ZFS hosts: Sanoid (local snapshots) → Syncoid (raw-encrypted replication to an on-site NAS) → Restic (client-encrypted offsite repo, e.g. Backblaze B2). Includes systemd timers and a NAS-side retention pruner for replication targets that can't run Sanoid. |
 | [`bash-scripts/ark-ase`](bash-scripts/ark-ase/) | `gamectl` — a single-command toolkit for **ARK: Survival Evolved** dedicated servers on Ubuntu Server 24.04: install, multi-map clustering, SteamCMD Workshop mod installation, save-safe template updates, backups, restore, and RCON. Shipped as annotated tags so downstream automation can pin a version plus a sha256 and verify it at deploy time. |
