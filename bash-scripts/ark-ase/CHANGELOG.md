@@ -15,6 +15,21 @@ are — the immutability rule applies to them too.
 
 ---
 
+## 1.6.4 — 2026-08-16
+
+- **MIT attribution for ported code.** `extract_mod()` — the UE `.z` chunk
+  inflation and `<id>.mod` metadata handling — is ported from ark-server-tools
+  (arkmanager), which is MIT-licensed. An inline comment named the source, but
+  the copyright and permission notice appeared nowhere in the script or the
+  repository. MIT asks that the notice accompany substantial portions of the
+  work, and this script is distributed as a single file — downstream automation
+  fetches the raw script, not the repo — so the notice has to live in the
+  header to travel with it.
+
+  No functional change; retagged so downstream pins verify against the new
+  bytes. Consumers pinning `v1.6.3` keep working on the old tag until they
+  choose to bump.
+
 ## 1.6.3 — 2026-08-06
 
 - Added copyright and GPL-3.0-or-later notice to the script header. No

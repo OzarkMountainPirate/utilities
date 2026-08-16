@@ -1,8 +1,8 @@
 #!/bin/bash
 #############################################################
 ## Name          : gamectl
-## Version       : 1.6.3
-## Date          : 2026-08-06
+## Version       : 1.6.4
+## Date          : 2026-08-16
 ## Maintainer    : OzarkMountainPirate - github.com/OzarkMountainPirate/utilities
 ## Copyright     : (C) 2026 Carl Alcott
 ## License       : GPL-3.0-or-later. See the LICENSE file in the repository
@@ -10,6 +10,14 @@
 ## 
 ## Credit        : Design inspired by LHammonds' ark-bash toolkit
 ##               : (github.com/LHammonds/ark-bash).
+##               :
+##               : extract_mod() -- UE .z chunk inflation and <id>.mod metadata
+##               : handling -- is ported from ark-server-tools (arkmanager),
+##               : github.com/arkmanager/ark-server-tools
+##               :   The MIT License (MIT)
+##               :   Copyright (c) 2015 Fez Vrasta
+##               : MIT permits this reuse under GPL-3.0; the notice travels
+##               : here because this script is distributed as a single file.
 ## Compatibility : Ubuntu Server 24.04 LTS (Debian 13 - Testing)  |  ARK: Survival Evolved (app 376030)
 ## Requirements  : steamcmd, rsync, mcrcon (RCON), systemd
 ## Purpose       : One tool to install, run, cluster, mod, back up, and update
@@ -31,7 +39,7 @@ INSTANCES_DIR="${ARK_ROOT}/instances"
 BACKUP_DIR="${ARK_ROOT}/bak"
 CLUSTER_DIR="${ARK_ROOT}/cluster"
 UNIT="/etc/systemd/system/ark@.service"
-VERSION="1.6.3"
+VERSION="1.6.4"
 
 ## ---- small helpers ------------------------------------------------------
 log()  { printf '[gamectl] %s\n' "$*"; }
